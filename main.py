@@ -42,11 +42,50 @@ clock = pygame.time.Clock()
 #Constants
 SCREENS = 3
 
-SPRITE_SIZE = (150,198)
+SPRITE_SIZE = (64,64)
 SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
 
 worldMaxX = SCREEN_SIZE[0]*SCREENS
 worldMaxY = SCREEN_SIZE[1]*SCREENS
+
+
+class spritesheet(object):
+    def __init__(self, filename):
+        try:
+            self.sheet = pygame.image.load(filename).convert()
+        except pygame.error as message:
+            print('Unable to load spritesheet image:', filename)
+            raise SystemExit(message)
+    # Load a specific image from a specific rectangle
+    def image_at(self, rectangle, colorkey = None):
+        "Loads image from x,y,x+offset,y+offset"
+        rect = pygame.Rect(rectangle)
+        image = pygame.Surface(rect.size).convert()
+        image.blit(self.sheet, (0, 0), rect)
+        if (colorkey is not None):
+            if (colorkey == -1):
+                colorkey = image.get_at((0,0))
+            image.set_colorkey(colorkey, pygame.RLEACCEL)
+        return image
+    # Load a whole bunch of images and return them as a list
+    def images_at(self, rects, colorkey = None):
+        "Loads multiple images, supply a list of coordinates" 
+        return [self.image_at(rect, colorkey) for rect in rects]
+    # Load a whole strip of images
+    def load_strip(self, rect, image_count, colorkey = None):
+        "Loads a strip of images and returns them as a list"
+        tups = [(rect[0]+rect[2]*x, rect[1], rect[2], rect[3])
+                for x in range(image_count)]
+        return self.images_at(tups, colorkey)
+
+    def load_sheet(self,width,height,rows,image_count, colorkey = None):
+        '''Loads an entire sprite sheet, assumes sprites are equally spaced, returns them as list of lists '''
+        sprite_sheet = []
+        for i in range(rows):
+            sprite_sheet.append(self.load_strip((0, 0+i*height, width, height),image_count,colorkey))
+
+        print('len(sprite_sheet)',len(sprite_sheet))
+        return sprite_sheet
 
 
 
@@ -136,26 +175,19 @@ class Camera():
 
         return self.screen
 
+
+
 class Player(Camera):
     def __init__(self):
         super(Player,self).__init__()
         self.orientation = 'Right'
-        self.images = []
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk1.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk2.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk3.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk4.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk5.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk6.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk7.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk8.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk9.png'))
-        self.images.append(pygame.image.load('C:/Games/Random_World/Assets/Sprites/pumpking_walk/walk10.png'))
- 
+        ss = spritesheet(get_file_path('/Assets/Sprites/Walk_sprite_sheet.png'))
+        # Sprite is 16x16 pixels at location 0,0 in the file...
+        self.sheet = ss.load_sheet(64,64,4,9,(255,255,255))
+        #self.images = ss.load_strip((0, 0, 64, 64),9,(255,255,255))
         self.index = 0
- 
-        self.image = self.images[self.index]
-
+        #self.image = self.images[self.index]
+        self.image = self.sheet[2][self.index]
         self.position = struct(x=0,y=0)
     def update(self, pressed_keys):
         global SPEED
@@ -167,59 +199,60 @@ class Player(Camera):
             print('SPEED:',SPEED,flush=True)
             if (SPEED <= 0):
                 SPEED = 0
-                
-        if self.index > len(self.images)-1:
+
+        if self.index > len(self.sheet[0])-1:
             self.index = 0
         # Move the SPRITE_SIZE based on user keypresses
         if pressed_keys[K_w]:
             self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
             self.worldY -= SPEED
             self.orientation = 'Right'
-            self.image = self.images[self.index]
+            self.image = self.sheet[0][self.index]
             self.index += 1
             self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
         
-        if self.index > len(self.images)-1:
+        if self.index > len(self.sheet[0])-1:
             self.index = 0
 
         if pressed_keys[K_s]:
             self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
             self.worldY += SPEED
             self.orientation = 'Left'
-            self.image = self.images[self.index]
+            self.image = self.sheet[2][self.index]
             self.index += 1
             self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
 
-        if self.index > len(self.images)-1:
+        if self.index > len(self.sheet[0])-1:
             self.index = 0
 
         if pressed_keys[K_a]:
             self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
             self.worldX -= SPEED
             self.orientation = 'Left'
-            self.image = self.images[self.index]
+            self.image = self.sheet[1][self.index]
             self.index += 1
             self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
 
-        if self.index > len(self.images)-1:
+        if self.index > len(self.sheet[0])-1:
             self.index = 0
 
         if pressed_keys[K_d]:
             self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
             self.worldX += SPEED
-            self.orientation = 'Right'
-            self.image = self.images[self.index]
+            self.orientation = 'Left'
+            self.image = self.sheet[3][self.index]
             self.index += 1
             self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
         
         if ((not pressed_keys[K_a]) and (not pressed_keys[K_s]) 
              and (not pressed_keys[K_w]) and (not pressed_keys[K_d])):
-            self.image = self.images[0]
+            #self.image = self.images[0]
+            pass
 
     def render(self,surface,position):
-        if self.orientation == "Right":
+        if self.orientation == "Left":
             screen.blit(surface, (position.x,position.y))
-        elif self.orientation == "Left":
+        elif self.orientation == "Right":
             screen.blit(pygame.transform.flip(surface, True, False), (position.x,position.y))
 
 class Map():
@@ -250,7 +283,7 @@ world = Map(MAP)
 # Variable to keep the main loop running
 running = True
 
-frame = FrameRate(100)
+frame = FrameRate(113)
 
 # Main loop
 while running:
@@ -284,4 +317,4 @@ while running:
     # Update the display
     pygame.display.update()
 
-    #clock.tick(5)
+    #clock.tick(9)
