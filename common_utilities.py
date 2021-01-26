@@ -2,6 +2,11 @@ import os
 import errno
 
 
+class struct:
+    def __init__(self, **kargs):
+        self.__dict__.update(**kargs)
+        
+
 def get_file_path(file_directory, fileName):
     '''
     get_file_path 
@@ -23,3 +28,4 @@ def get_file_path(file_directory, fileName):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),file_path)
 
     return file_path
+
