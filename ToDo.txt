@@ -1,0 +1,7 @@
+- Make color below trees more realistic grass color
+- Allow sprite to jump
+- Figure out better way to change screens that doesn't rely on assigning numbers
+- Fix walk animation to be default standing when not moving
+- Collision detection with objects
+- Smarter bliting, only want to re-blit the things that the player sprite has walked over
+- Better map management, list three layers deep will get wildly unmanagemable pretty quickly

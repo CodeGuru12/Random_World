@@ -1,0 +1,30 @@
+Instructions
+
+1.) Install python if you don't have it already. (I think I have 3.9.1)
+2.) Add python to your environment variable PATH if you haven't already to run it from the command line
+    Mine is here:
+	 C:\Users\thoma\AppData\Local\Programs\Python\Python39\
+	 C:\Users\thoma\AppData\Local\Programs\Python\Python39\Scripts\
+
+3.) Open up a command window and type python, press enter. If it starts the python interpreter everything is golden
+    and it's on your path
+
+4.) Now run this command 'pip install pygame'. That will install the pygame library you need to run my code.
+
+
+5.) If that installs successfully (which it should, and it takes 5 seconds) you should just need to download 
+    my code from my repo which is here: 
+ 	https://github.com/CodeGuru12/Random_World
+
+6.) Click on the little green button that says code, and click download zip. No need to try to clone the git repo unless 
+    you want to.
+
+7.) Now that you have the .zip folder, just unzip it in your downloadds folder, and open a cmd window there (shift-right-click)
+ 
+8.) Go into Random_World-main folder, you'll see a few folders and common_utilities.py, and main.py
+
+9.) From the cmd window you just opened run 'python main.py' 
+
+10.) That'll launch the code, and you can run around the 3x3 map with a sprite dude. Nothing to do yet of course  
+     except run into the walls at the edges of the map
+
