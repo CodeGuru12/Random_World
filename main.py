@@ -185,23 +185,31 @@ class Camera():
 
         return (self.screen,self.updateScreen)
 
-
+def convert_to_iso(cart_x,cart_y):
+    '''
+    Returns isometric coordinates from cartesian coordinates
+    '''
+    iso_x = (cart_x - cart_y)
+    iso_y = (cart_x + cart_y)/2
+    return iso_x, iso_y
 
 class Player(Camera):
     def __init__(self):
         super(Player,self).__init__()
         self.orientation = 'Right'
-        ss = spritesheet(get_file_path('/Assets/Sprites/Walk_sprite_sheet.png'))
+        #ss = spritesheet(get_file_path('/Assets/Sprites/Walk_sprite_sheet.png'))
+        ss = spritesheet(get_file_path('/Assets/Sprites/adventurer-v1.5-Sheet-large.png'))
         # Sprite is 16x16 pixels at location 0,0 in the file...
-        self.sheet = ss.load_sheet(64,64,4,9,(255,255,255))
+        #load_sheet(self,width,height,rows,image_count, colorkey = None)
+        self.sheet = ss.load_sheet(128,128,16,7,(255,255,255))
         #self.images = ss.load_strip((0, 0, 64, 64),9,(255,255,255))
         self.index = 0
         #self.image = self.images[self.index]
         self.image = self.sheet[2][self.index]
-        self.position = struct(x=0,y=0)
+        self.position = struct(x=150,y=150)
+        self.iso_position = struct(x=0,y=0)
         self.my_rect = pygame.Rect(self.position.x,self.position.y, 64, 64)
         self.surf = pygame.Surface((64, 64), pygame.SRCALPHA)
-
         #print('self.rect:',self.rect)
     def update(self, pressed_keys,sprite):#,self.is_collision,sprite):
         global SPEED
@@ -216,95 +224,92 @@ class Player(Camera):
             print('SPEED:',SPEED,flush=True)
             if (SPEED <= 0):
                 SPEED = 0
-        print('self.position.x+c:',self.position.x+c,'self.position.y+c:',self.position.y+c)
+
+        self.position.x, self.position.y = self.move(pressed_keys,sprite)
+        self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+
         pygame.draw.rect(self.surf, (0, 100, 255), (0, 0, 48+c, 64+c), 1)
-        screen.blit(self.surf, (self.position.x+c, self.position.y+c))
-        print()
-
-        moveBack = True
+        screen.blit(self.surf, (self.iso_position.x,self.iso_position.y))
 
 
+    def move(self,pressed_keys,sprite):
         if self.index > len(self.sheet[0])-1:
             self.index = 0
         # Move the SPRITE_SIZE based on user keypresses
         if pressed_keys[K_w]:
-            self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
-            
+            #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
             #Allow movement only if collision not detected
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
-            self.worldY -= SPEED
-            self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
+            self.position.x -= SPEED
+            #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.my_rect.x = self.position.x
             self.my_rect.y = self.position.y
-            if(self.is_collision(sprite)):
-               moveBack = False
-               self.worldY += SPEED
+            #if(self.is_collision(sprite)):
+               #self.worldX += SPEED
             self.orientation = 'Right'
-            self.image = self.sheet[0][self.index]
+            self.image = self.sheet[1][self.index]
             self.index += 1
-            self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
         
         if self.index > len(self.sheet[0])-1:
             self.index = 0
 
         if pressed_keys[K_s]:
-            self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
+            #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
-            self.worldY += SPEED
-            self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
+            self.position.x += SPEED
+            #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.my_rect.x = self.position.x
             self.my_rect.y = self.position.y
-            if(self.is_collision(sprite)):
-               moveBack = False
-               self.worldY -= SPEED
+            #if(self.is_collision(sprite)):
+            #   self.worldX -= SPEED
             self.orientation = 'Left'
-            self.image = self.sheet[2][self.index]
+            self.image = self.sheet[1][self.index]
             self.index += 1
-            self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
+
 
         if self.index > len(self.sheet[0])-1:
             self.index = 0
 
         if pressed_keys[K_a]:
-            self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
+            #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
 
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
-            self.worldX -= SPEED
-            self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
+            self.position.y += SPEED
+            #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.my_rect.x = self.position.x
             self.my_rect.y = self.position.y
-            if(self.is_collision(sprite)):
-               moveBack = False
-               self.worldX += SPEED
+            #if(self.is_collision(sprite)):
+            #   self.worldY -= SPEED
             self.orientation = 'Left'
             self.image = self.sheet[1][self.index]
             self.index += 1
-            self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
+
 
         if self.index > len(self.sheet[0])-1:
             self.index = 0
 
         if pressed_keys[K_d]:
-            self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
+            #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
 
-                #print('self.is_collision(sprite):',self.is_collision(sprite))
-            self.worldX += SPEED
-            self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
+            #print('self.is_collision(sprite):',self.is_collision(sprite))
+            self.position.y -= SPEED
+            #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.my_rect.x = self.position.x
             self.my_rect.y = self.position.y
-            if(self.is_collision(sprite)):
-               moveBack = False
-               self.worldX -= SPEED
+            #if(self.is_collision(sprite)):
+            #   self.worldY += SPEED
             self.orientation = 'Left'
-            self.image = self.sheet[3][self.index]
+            self.image = self.sheet[1][self.index]
             self.index += 1
-            self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
+
 
         #Supposed to have a default rest image when not walking
         if ((not pressed_keys[K_a]) and (not pressed_keys[K_s]) 
              and (not pressed_keys[K_w]) and (not pressed_keys[K_d])):
-            #self.image = self.images[0]
-            pass
+            self.image = self.sheet[0][1]
+
+
+        return self.position.x,self.position.y
 
     def render(self,surface,position):
         if self.orientation == "Left":
@@ -319,7 +324,7 @@ class Player(Camera):
         #https://gamedev.stackexchange.com/questions/116195/pygame-collide-rect
         collision = False
         #for r in object_rect:
-        if (object_rect.rect[0].colliderect(self.my_rect)):
+        if (object_rect.rect.colliderect(self.my_rect)):
             collision = True
         print('collision:',collision)
         return collision
@@ -348,9 +353,25 @@ world = worldBuilder.Map(worldBuilder.map_data,MAP)
 # Variable to keep the main loop running
 running = True
 
-frame = FrameRate(113)
+frame = FrameRate(60)
 clock = pygame.time.Clock()
 # Main loop
+
+def main():
+    screen.fill((0,0,0))
+
+    player.update(pressed_keys,world)#,world.is_collided_with,player)
+    #Returns worldScreen coordinates, whether the map should be updated
+    #world.is_collided_with(player.rect)
+
+    #worldScreen,updateMap = player.updateCamera(player.iso_position)
+    world.update((0,0))
+    world.render(screen,False)
+    # Draw the player on the screen
+    print('self.position.x:',player.position.x,'self.position.y:',player.position.y)
+    print('self.iso.x:',player.iso_position.x,'self.iso.y:',player.iso_position.y)
+    player.render(player.image,player.iso_position)
+
 while running:
 
     # for loop through the event queue
@@ -368,21 +389,9 @@ while running:
     # Get all the keys currently pressed
     pressed_keys = pygame.key.get_pressed()
 
-    screen.fill((0,0,0))
-
-    frame.integrate_state(player.update,pressed_keys,world)#,world.is_collided_with,player)
-    #Returns worldScreen coordinates, whether the map should be updated
-    #world.is_collided_with(player.rect)
-
-    worldScreen,updateMap = player.updateCamera(player.position)
-    world.update(worldScreen)
-    world.render(screen,updateMap)
-    # Draw the player on the screen
-    player.render(player.image,player.position)
-
+    frame.integrate_state(main)
 
 
     # Update the display
     pygame.display.flip()
 
-    clock.tick(40)

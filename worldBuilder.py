@@ -153,59 +153,22 @@ class Map():
     def render(self,screen,updatemap):
         #Only update map when player screen changes
         self.reset = False
-        print('self.init:',self.init,'updatemap:',updatemap,flush=True)
-        if ((self.init == True) or True):
-            #    
-                #print('self.init:',self.init,flush=True)
-                #print('updatemap:',updatemap)
+        global temp_x
+        global temp_y
 
-            for row_nb, row in enumerate(self.map[self.map_view]):    #for every row of the map...
-                for col_nb, tile in enumerate(row):
-                    if (tile == 1):
-                        tileImage = self.wall
-                        colorkey = None
-                    elif (tile == 2):
-                        tileImage = self.tree
-                        #colorkey = (255,255,255)
-                    else:
-                        tileImage = self.grass
-                        colorkey = None
-                    cart_x = row_nb * TILEWIDTH_HALF
-                    cart_y = col_nb * TILEHEIGHT_HALF  
-                    iso_x = (cart_x - cart_y) 
-                    iso_y = (cart_x + cart_y)/2
-                    centered_x = screen.get_rect().centerx + iso_x-50
-                    centered_y = screen.get_rect().centery/2 + iso_y-50
-                    if (tile == 2):
-                        screen.blit(self.grass, (centered_x, centered_y))
-                        screen.blit(tileImage, (centered_x, centered_y)) #display the actual tile
-                    else:
-                        screen.blit(tileImage, (centered_x, centered_y))
-                    
+        self.rect = pygame.Rect(250, 250, 64, 64)
 
+        tileImage = self.tree
+        #screen.blit(self.grass, (centered_x, centered_y))
+        screen.blit(tileImage, (250, 250)) #display the actual tile
 
-                    if (tile == 2 and (self.init)):
-                        #Draw rectangle
+        pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(250, 250, 64, 64),  2) 
+        pygame.display.flip() 
+        #tree_rect = pygame.Surface((64, 64), pygame.SRCALPHA)
+        #pygame.draw.rect(tree_rect,(0, 255, 0),(0,0,64,64),3)
+        #print('centered_x: ',centered_x,'centered_y: ',centered_y)
+        #screen.blit(tree_rect, (250, 250))
 
-                        self.rect.append(pygame.Rect(centered_x, centered_y, 64, 64))
-                    elif (updatemap and (self.reset)):
-                        self.rect = []
-                        surf = pygame.Surface((64, 64), pygame.SRCALPHA)
-                        pygame.draw.rect(surf,(0, 100, 255),(centered_x,centered_y,64,64),21)
-                        screen.blit(surf, (centered_x, centered_x))
-                        self.rect.append(pygame.Rect(centered_x, centered_y, 64, 64))
-
-                    if (tile == 2):
-                        print('we are coming in here?',flush=True)
-                        surf = pygame.Surface((64, 64), pygame.SRCALPHA)
-                        pygame.draw.rect(surf,(0, 100, 255),(centered_x,centered_y,64,64),3)
-                        screen.blit(surf, (centered_x, centered_x))
-                        #print('self.rect:',self.rect)
-                        #screen.set_colorkey(colorkey, pygame.RLEACCEL)
-            self.init = False
-            self.previous_update = updatemap
-    #def is_collided_with(self, sprite):
-    #    return self.rect.colliderect(sprite.rect)
 
 if __name__ == '__main__':
     import pygame
