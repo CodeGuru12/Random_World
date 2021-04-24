@@ -154,7 +154,7 @@ class Map():
         self.tree = pygame.image.load(get_file_path('/Assets/Textures/stylized_tree_smaller.png') ).convert_alpha()
         self.init = True
         self.mapping = mapping
-        self.rect = pygame.Rect(250, 250, 175, 182)
+        self.rect = []
         self.previous_update = False
         print('tree.rect:',self.rect)
     def update(self,coordinates):
@@ -165,21 +165,46 @@ class Map():
     def render(self,screen,updatemap):
         #Only update map when player screen changes
         self.reset = False
-        global temp_x
-        global temp_y
+        if (True):#(self.init == True) or True):
+            #    
+                #print('self.init:',self.init,flush=True)
+                #print('updatemap:',updatemap)
+            tree_width = 100
+            tree_height = 100
+            actual_tree_width = 175
+            actual_tree_height = 182
+            for row_nb, row in enumerate(self.map[self.map_view]):    #for every row of the map...
+                for col_nb, tile in enumerate(row):
+                    if (tile == 1):
+                        tileImage = self.wall
+                        colorkey = None
+                    elif (tile == 2):
+                        tileImage = self.tree
+                        #colorkey = (255,255,255)
+                    else:
+                        tileImage = self.grass
+                        colorkey = None
+                    cart_x = row_nb * TILEWIDTH_HALF
+                    cart_y = col_nb * TILEHEIGHT_HALF  
+                    iso_x = (cart_x - cart_y) 
+                    iso_y = (cart_x + cart_y)/2
+                    centered_x = screen.get_rect().centerx + iso_x
+                    centered_y = screen.get_rect().centery/2 + iso_y
+                    if (tile == 2):
+                        screen.blit(tileImage, (centered_x, centered_y))
+                        surf = pygame.Surface((tree_width, tree_height), pygame.SRCALPHA)
+                        pygame.draw.rect(surf,(0, 100, 255),(0,0,tree_width,tree_height),2)
+                        screen.blit(surf, (centered_x+30, centered_y+80))
+                    else:
+                        pass 
+                        #screen.blit(tileImage, (centered_x, centered_y))
 
-        #self.rect = pygame.Rect(250, 250, 64, 64)
+                    if (self.init == True):
+                        print('Going in here?')
+                        if (tile == 2):
+                            self.rect.append(pygame.Rect(centered_x+30, centered_y+80, tree_width, tree_height))
 
-        tileImage = self.tree
-        #screen.blit(self.grass, (centered_x, centered_y))
-        screen.blit(tileImage, (250, 250)) #display the actual tile
-
-        pygame.draw.rect(screen, (255, 0, 0), (250, 250, 175, 182),  2) 
-        #tree_rect = pygame.Surface((64, 64), pygame.SRCALPHA)
-        #pygame.draw.rect(tree_rect,(0, 255, 0),(0,0,64,64),3)
-        #print('centered_x: ',centered_x,'centered_y: ',centered_y)
-        #screen.blit(tree_rect, (250, 250))
-
+            self.init = False
 
 if __name__ == '__main__':
     import pygame

@@ -332,10 +332,12 @@ class Player(Camera):
     def is_collision(self,object_rect):
         #https://gamedev.stackexchange.com/questions/116195/pygame-collide-rect
         collision = False
-        #for r in object_rect:
-        if (object_rect.rect.colliderect(self.my_rect)):
-            collision = True
-        print('collision:',collision,flush=True)
+        print('object_rect.rect: ',object_rect.rect)
+        for r in object_rect.rect:
+            print('r: ',r, flush=True)
+            if (r.colliderect(self.my_rect)):
+                collision = True
+            print('collision:',collision,flush=True)
         return collision
     
     # def is_collision(self,object_rect):
@@ -374,13 +376,14 @@ def main():
     #world.is_collided_with(player.rect)
 
     #worldScreen,updateMap = player.updateCamera(player.iso_position)
+    player.render(player.image)
     world.update((0,0))
     world.render(screen,False)
     # Draw the player on the screen
     #print('self.position.x:',player.position.x,'self.position.y:',player.position.y)
     #print('self.iso.x:',player.iso_position.x,'self.iso.y:',player.iso_position.y)
 
-    player.render(player.image)
+
 
 while running:
 
