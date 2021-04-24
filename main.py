@@ -25,6 +25,7 @@ BLUE = (0,0,255)
 PURPLE = (153,50,204)
 GREEN = (0,128,0)
 
+SIZE = 0
 MAP = [[BLUE, GREEN, BLUE],
        [GREEN, PURPLE, GREEN],
        [PURPLE, GREEN, BLUE]]
@@ -36,8 +37,8 @@ MAP = [[0, 1, 2],
 DEBUG = False
         
 # Define constants for the screen width and height
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1900
+SCREEN_HEIGHT = 1000
 
 SPEED = 15
 # Setup the clock for a decent framerate
@@ -112,7 +113,7 @@ class FrameRate():
         if (DEBUG):
             print('self.elapsed_time:',self.elapsed_time)
         self.previousTime = self.currentTime
-        if (self.elapsed_time >= int(self.dT)): 
+        if (self.elapsed_time >= (1 / int(self.dT)*1000)): 
             if (DEBUG):
                 print('self.elapsed_time:',self.elapsed_time)
             #Call function after elapsed time    
@@ -175,7 +176,7 @@ class Camera():
         if (position.y > SCREEN_SIZE[1]-SPRITE_SIZE[1] and self.screen[1] == 2):
             position.y = SCREEN_SIZE[1]-SPRITE_SIZE[1]
 
-        if (DEBUG):
+        if (False):
             print('self.screen:',self.screen)
             print('self.worldX:',self.worldX)
             print('self.worldY:',self.worldY)
@@ -198,71 +199,75 @@ class Player(Camera):
         super(Player,self).__init__()
         self.orientation = 'Right'
         #ss = spritesheet(get_file_path('/Assets/Sprites/Walk_sprite_sheet.png'))
-        ss = spritesheet(get_file_path('/Assets/Sprites/adventurer-v1.5-Sheet-large.png'))
+        ss = spritesheet(get_file_path('/Assets/Sprites/main_character.png'))
         # Sprite is 16x16 pixels at location 0,0 in the file...
         #load_sheet(self,width,height,rows,image_count, colorkey = None)
-        self.sheet = ss.load_sheet(128,128,16,7,(255,255,255))
+        self.sheet = ss.load_sheet(96,144,4,3,(0,0,0))
         #self.images = ss.load_strip((0, 0, 64, 64),9,(255,255,255))
-        self.index = 0
+        self.index = 1
         #self.image = self.images[self.index]
-        self.image = self.sheet[2][self.index]
+        self.image = self.sheet[0][self.index]
         self.position = struct(x=150,y=150)
+        self.history = struct(x=0,y=0)
         self.iso_position = struct(x=0,y=0)
-        self.my_rect = pygame.Rect(self.position.x,self.position.y, 64, 64)
-        self.surf = pygame.Surface((64, 64), pygame.SRCALPHA)
+        self.my_rect = pygame.Rect(self.iso_position.x,self.iso_position.y, 96, 144)
+        self.collisionSurf = pygame.Surface((64, 64), pygame.SRCALPHA)
         #print('self.rect:',self.rect)
     def update(self, pressed_keys,sprite):#,self.is_collision,sprite):
-        global SPEED
-        c = 0
-        if (pressed_keys[K_UP]):
-            c += 1
-            SPEED += 1
-            print('SPEED:',SPEED,flush=True)
-        elif (pressed_keys[K_DOWN]):
-            c -= 1
-            SPEED -= 1
-            print('SPEED:',SPEED,flush=True)
-            if (SPEED <= 0):
-                SPEED = 0
+
 
         self.position.x, self.position.y = self.move(pressed_keys,sprite)
         self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-
-        pygame.draw.rect(self.surf, (0, 100, 255), (0, 0, 48+c, 64+c), 1)
-        screen.blit(self.surf, (self.iso_position.x,self.iso_position.y))
+        
+        pygame.draw.rect(self.collisionSurf, (0, 0, 150), (0,0, 96, 144), 1)
+        screen.blit(self.collisionSurf, (self.iso_position.x, self.iso_position.y))
 
 
     def move(self,pressed_keys,sprite):
+        global SIZE
+        self.my_rect = pygame.Rect(self.position.x,self.position.y, 70, 131)
+        if (pressed_keys[K_UP]):
+            SIZE += 1
+            print('SIZE:',SIZE,flush=True)
+        elif (pressed_keys[K_DOWN]):
+            SIZE -= 1
+            print('SIZE:',SIZE,flush=True)
+
         if self.index > len(self.sheet[0])-1:
             self.index = 0
         # Move the SPRITE_SIZE based on user keypresses
-        if pressed_keys[K_w]:
+        if pressed_keys[K_w]: #up to left
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
             #Allow movement only if collision not detected
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
             self.position.x -= SPEED
-            #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
-            self.my_rect.x = self.position.x
-            self.my_rect.y = self.position.y
-            #if(self.is_collision(sprite)):
-               #self.worldX += SPEED
-            self.orientation = 'Right'
+            self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+            self.my_rect.x = self.iso_position.x
+            self.my_rect.y = self.iso_position.y
+            print('self.my_rect.x: ',self.my_rect.x)
+            print('self.my_rect.y: ',self.my_rect.y)
+            print('self.position.x: ',self.iso_position.x)
+            print('self.position.y: ',self.iso_position.y)
+            if(self.is_collision(sprite)):
+               self.position.x += SPEED
+            self.orientation = 'Left'
             self.image = self.sheet[1][self.index]
             self.index += 1
         
         if self.index > len(self.sheet[0])-1:
             self.index = 0
 
-        if pressed_keys[K_s]:
+        if pressed_keys[K_s]: #down to right
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
             self.position.x += SPEED
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
-            self.my_rect.x = self.position.x
-            self.my_rect.y = self.position.y
-            #if(self.is_collision(sprite)):
-            #   self.worldX -= SPEED
-            self.orientation = 'Left'
+            self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+            self.my_rect.x = self.iso_position.x
+            self.my_rect.y = self.iso_position.y
+            if(self.is_collision(sprite)):
+               self.position.x -= SPEED
+            self.orientation = 'Right'
             self.image = self.sheet[1][self.index]
             self.index += 1
 
@@ -276,10 +281,11 @@ class Player(Camera):
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
             self.position.y += SPEED
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
-            self.my_rect.x = self.position.x
-            self.my_rect.y = self.position.y
-            #if(self.is_collision(sprite)):
-            #   self.worldY -= SPEED
+            self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+            self.my_rect.x = self.iso_position.x
+            self.my_rect.y = self.iso_position.y
+            if(self.is_collision(sprite)):
+               self.position.y -= SPEED
             self.orientation = 'Left'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -294,11 +300,12 @@ class Player(Camera):
             #print('self.is_collision(sprite):',self.is_collision(sprite))
             self.position.y -= SPEED
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
-            self.my_rect.x = self.position.x
-            self.my_rect.y = self.position.y
-            #if(self.is_collision(sprite)):
-            #   self.worldY += SPEED
-            self.orientation = 'Left'
+            self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+            self.my_rect.x = self.iso_position.x
+            self.my_rect.y = self.iso_position.y
+            if(self.is_collision(sprite)):
+               self.position.y += SPEED
+            self.orientation = 'Right'
             self.image = self.sheet[1][self.index]
             self.index += 1
 
@@ -308,14 +315,16 @@ class Player(Camera):
              and (not pressed_keys[K_w]) and (not pressed_keys[K_d])):
             self.image = self.sheet[0][1]
 
+        self.history.x = self.position.x
+        self.history.y = self.position.y
 
         return self.position.x,self.position.y
 
-    def render(self,surface,position):
+    def render(self,surface):
         if self.orientation == "Left":
-            screen.blit(surface, (position.x,position.y))
+            screen.blit(surface, (self.iso_position.x,self.iso_position.y))
         elif self.orientation == "Right":
-            screen.blit(pygame.transform.flip(surface, True, False), (position.x,position.y))
+            screen.blit(pygame.transform.flip(surface, True, False), (self.iso_position.x,self.iso_position.y))
 
     def get_rect(self):
         return pygame.Rect(self.position.x,self.position.y, 64, 64)
@@ -326,9 +335,9 @@ class Player(Camera):
         #for r in object_rect:
         if (object_rect.rect.colliderect(self.my_rect)):
             collision = True
-        print('collision:',collision)
+        print('collision:',collision,flush=True)
         return collision
-
+    
     # def is_collision(self,object_rect):
     #     #https://gamedev.stackexchange.com/questions/136195/pygame-collide-rect
     #     for rect in object_rect.rect:
@@ -358,8 +367,8 @@ clock = pygame.time.Clock()
 # Main loop
 
 def main():
-    screen.fill((0,0,0))
 
+    screen.fill((0,0,0))
     player.update(pressed_keys,world)#,world.is_collided_with,player)
     #Returns worldScreen coordinates, whether the map should be updated
     #world.is_collided_with(player.rect)
@@ -368,9 +377,10 @@ def main():
     world.update((0,0))
     world.render(screen,False)
     # Draw the player on the screen
-    print('self.position.x:',player.position.x,'self.position.y:',player.position.y)
-    print('self.iso.x:',player.iso_position.x,'self.iso.y:',player.iso_position.y)
-    player.render(player.image,player.iso_position)
+    #print('self.position.x:',player.position.x,'self.position.y:',player.position.y)
+    #print('self.iso.x:',player.iso_position.x,'self.iso.y:',player.iso_position.y)
+
+    player.render(player.image)
 
 while running:
 
@@ -389,9 +399,9 @@ while running:
     # Get all the keys currently pressed
     pressed_keys = pygame.key.get_pressed()
 
+    #main()
     frame.integrate_state(main)
 
 
     # Update the display
     pygame.display.flip()
-

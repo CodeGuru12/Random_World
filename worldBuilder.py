@@ -123,7 +123,19 @@ map_data = [
     [1, 1, 0, 0, 1,0, 0, 0, 0, 1,1,0,1,1]
 ],
 [
-    [2]
+    [1, 1, 1, 1, 1,1, 0, 1, 0, 1,1,0,0,1],
+    [1, 0, 0, 0, 1,1, 0, 0, 0, 1,1,0,0,1],
+    [1, 0, 0, 0, 0,0, 0, 0, 0, 1,1,0,0,1],
+    [1, 0, 0, 0, 1,1, 2, 0, 0, 1,1,0,0,1],
+    [1, 0, 2, 0, 0,1, 0, 0, 0, 1,1,0,0,1],
+    [1, 0, 1, 0, 1,1, 0, 0, 0, 1,1,0,0,1],
+    [1, 0, 0, 0, 1,1, 0, 0, 0, 1,1,0,2,1],
+    [1, 1, 0, 0, 1,0, 0, 0, 0, 1,1,0,2,1],
+    [1, 0, 0, 0, 1,1, 0, 0, 0, 1,1,0,0,1],
+    [1, 0, 0, 0, 0,1, 0, 0, 0, 1,1,0,1,1],
+    [1, 0, 1, 0, 1,1, 0, 0, 0, 1,1,0,2,1],
+    [1, 0, 0, 0, 1,1, 0, 0, 0, 1,1,0,1,1],
+    [1, 1, 0, 0, 1,0, 0, 0, 0, 1,1,0,1,1]
 ]
 ]               #the data for the map expressed as [row[tile]].
 
@@ -139,10 +151,10 @@ class Map():
         self.map_view = 5
         self.wall = pygame.image.load(get_file_path('/Assets/Textures/wall.png') ).convert_alpha()  #load images
         self.grass = pygame.image.load(get_file_path('/Assets/Textures/grass.png') ).convert_alpha()
-        self.tree = pygame.image.load(get_file_path('/Assets/Textures/tree.png') ).convert_alpha()
+        self.tree = pygame.image.load(get_file_path('/Assets/Textures/stylized_tree_smaller.png') ).convert_alpha()
         self.init = True
         self.mapping = mapping
-        self.rect = []
+        self.rect = pygame.Rect(250, 250, 175, 182)
         self.previous_update = False
         print('tree.rect:',self.rect)
     def update(self,coordinates):
@@ -156,14 +168,13 @@ class Map():
         global temp_x
         global temp_y
 
-        self.rect = pygame.Rect(250, 250, 64, 64)
+        #self.rect = pygame.Rect(250, 250, 64, 64)
 
         tileImage = self.tree
         #screen.blit(self.grass, (centered_x, centered_y))
         screen.blit(tileImage, (250, 250)) #display the actual tile
 
-        pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(250, 250, 64, 64),  2) 
-        pygame.display.flip() 
+        pygame.draw.rect(screen, (255, 0, 0), (250, 250, 175, 182),  2) 
         #tree_rect = pygame.Surface((64, 64), pygame.SRCALPHA)
         #pygame.draw.rect(tree_rect,(0, 255, 0),(0,0,64,64),3)
         #print('centered_x: ',centered_x,'centered_y: ',centered_y)
