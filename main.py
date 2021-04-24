@@ -40,7 +40,6 @@ DEBUG = False
 SCREEN_WIDTH = 1900
 SCREEN_HEIGHT = 1000
 
-SPEED = 15
 # Setup the clock for a decent framerate
 clock = pygame.time.Clock()
 
@@ -109,9 +108,9 @@ class FrameRate():
         self.callback = callback
         self.currentTime = int(time()*1000)
 
-        self.elapsed_time += self.currentTime - self.previousTime
-        if (DEBUG):
-            print('self.elapsed_time:',self.elapsed_time)
+        self.elapsed_time += (self.currentTime - self.previousTime)
+
+        print('self.elapsed_time:',self.elapsed_time)
         self.previousTime = self.currentTime
         if (self.elapsed_time >= (1 / int(self.dT)*1000)): 
             if (DEBUG):
@@ -120,6 +119,8 @@ class FrameRate():
             self.callback(*args)
             #Reset elapsed time
             self.elapsed_time = 0
+
+        return self.elapsed_time
 
 class Camera():
     def __init__(self):
@@ -212,20 +213,22 @@ class Player(Camera):
         self.iso_position = struct(x=0,y=0)
         self.my_rect = pygame.Rect(self.iso_position.x,self.iso_position.y, 96, 144)
         self.collisionSurf = pygame.Surface((64, 64), pygame.SRCALPHA)
+        self.speed = 200
         #print('self.rect:',self.rect)
-    def update(self, pressed_keys,sprite):#,self.is_collision,sprite):
+    def update(self, pressed_keys,deltaT,sprite):#,self.is_collision,sprite):
 
 
-        self.position.x, self.position.y = self.move(pressed_keys,sprite)
+        self.position.x, self.position.y = self.move(pressed_keys,deltaT,sprite)
         self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
         
         pygame.draw.rect(self.collisionSurf, (0, 0, 150), (0,0, 96, 144), 1)
         screen.blit(self.collisionSurf, (self.iso_position.x, self.iso_position.y))
 
 
-    def move(self,pressed_keys,sprite):
+    def move(self,pressed_keys,deltaT,sprite):
         global SIZE
         self.my_rect = pygame.Rect(self.position.x,self.position.y, 70, 131)
+        print(deltaT,flush=True)
         if (pressed_keys[K_UP]):
             SIZE += 1
             print('SIZE:',SIZE,flush=True)
@@ -240,7 +243,7 @@ class Player(Camera):
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
             #Allow movement only if collision not detected
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
-            self.position.x -= SPEED
+            self.position.x -= self.speed * deltaT
             self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
             self.my_rect.x = self.iso_position.x
             self.my_rect.y = self.iso_position.y
@@ -249,7 +252,7 @@ class Player(Camera):
             print('self.position.x: ',self.iso_position.x)
             print('self.position.y: ',self.iso_position.y)
             if(self.is_collision(sprite)):
-               self.position.x += SPEED
+               self.position.x += self.speed * deltaT
             self.orientation = 'Left'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -260,13 +263,13 @@ class Player(Camera):
         if pressed_keys[K_s]: #down to right
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
-            self.position.x += SPEED
+            self.position.x += self.speed * deltaT
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
             self.my_rect.x = self.iso_position.x
             self.my_rect.y = self.iso_position.y
             if(self.is_collision(sprite)):
-               self.position.x -= SPEED
+               self.position.x -= self.speed * deltaT
             self.orientation = 'Right'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -279,13 +282,13 @@ class Player(Camera):
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
 
                 #print('self.is_collision(sprite):',self.is_collision(sprite))
-            self.position.y += SPEED
+            self.position.y += self.speed * deltaT
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
             self.my_rect.x = self.iso_position.x
             self.my_rect.y = self.iso_position.y
             if(self.is_collision(sprite)):
-               self.position.y -= SPEED
+               self.position.y -= self.speed * deltaT
             self.orientation = 'Left'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -298,13 +301,13 @@ class Player(Camera):
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
 
             #print('self.is_collision(sprite):',self.is_collision(sprite))
-            self.position.y -= SPEED
+            self.position.y -= self.speed * deltaT
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
             self.my_rect.x = self.iso_position.x
             self.my_rect.y = self.iso_position.y
             if(self.is_collision(sprite)):
-               self.position.y += SPEED
+               self.position.y += self.speed * deltaT
             self.orientation = 'Right'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -355,7 +358,7 @@ pygame.init()
 # The size is determined by the constant SCREEN_SIZE[0] and SCREEN_SIZE[1]
 screen = pygame.display.set_mode((SCREEN_SIZE[0], SCREEN_SIZE[1]),pygame.DOUBLEBUF)
 
-
+frameRate = 6
 # Instantiate player. Right now, this is just a rectangle.
 player = Player()
 #Instantiate map, takes list of lists map to be rendered
@@ -364,7 +367,7 @@ world = worldBuilder.Map(worldBuilder.map_data,MAP)
 # Variable to keep the main loop running
 running = True
 
-frame = FrameRate(60)
+frame = FrameRate(frameRate)
 clock = pygame.time.Clock()
 # Main loop
 
@@ -380,10 +383,9 @@ def main():
     world.update((0,0))
     world.render(screen,False)
     # Draw the player on the screen
-    #print('self.position.x:',player.position.x,'self.position.y:',player.position.y)
-    #print('self.iso.x:',player.iso_position.x,'self.iso.y:',player.iso_position.y)
 
 
+deltaT = 0
 
 while running:
 
@@ -402,9 +404,17 @@ while running:
     # Get all the keys currently pressed
     pressed_keys = pygame.key.get_pressed()
 
-    #main()
-    frame.integrate_state(main)
+    screen.fill((0,0,0))
+    deltaT = frame.integrate_state(player.update,pressed_keys,deltaT/1000,world)#,world.is_collided_with,player)
+    #Returns worldScreen coordinates, whether the map should be updated
+    #world.is_collided_with(player.rect)
 
+    #worldScreen,updateMap = player.updateCamera(player.iso_position)
+    player.render(player.image)
+    world.update((0,0))
+    world.render(screen,False)
+    #frame.integrate_state(main)
 
+    
     # Update the display
     pygame.display.flip()
