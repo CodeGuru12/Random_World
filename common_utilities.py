@@ -1,6 +1,18 @@
 import os
 import errno
 from pathlib import Path
+from enum import Enum
+
+class Options(Enum):
+    CONVERTALPHA = 0
+    CONVERT      = 1
+
+class Enum(tuple): 
+    '''Allows enumerations to be defined as 
+       options = Enum(['COLOR','NOCOLOR'])
+       Acccessing enum: options.COLOR returns 0, options.NOCOLOR returns 1
+     '''
+    __getattr__ = tuple.index
 
 
 class struct:

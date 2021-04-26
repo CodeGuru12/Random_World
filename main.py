@@ -4,6 +4,7 @@ import pygame
 from common_utilities import *
 from time import time
 import worldBuilder
+import spriteManager
 # Import pygame.locals for easier access to key coordinates
 
 # Updated to conform to flake8 and black standards
@@ -54,46 +55,6 @@ worldMaxX = SCREEN_SIZE[0]*SCREENS
 worldMaxY = SCREEN_SIZE[1]*SCREENS
 
 
-class spritesheet(object):
-    def __init__(self, filename):
-        try:
-            self.sheet = pygame.image.load(filename).convert()
-        except pygame.error as message:
-            print('Unable to load spritesheet image:', filename)
-            raise SystemExit(message)
-    # Load a specific image from a specific rectangle
-    def image_at(self, rectangle, colorkey = None):
-        "Loads image from x,y,x+offset,y+offset"
-        rect = pygame.Rect(rectangle)
-        image = pygame.Surface(rect.size).convert()
-        image.blit(self.sheet, (0, 0), rect)
-        if (colorkey is not None):
-            if (colorkey == -1):
-                colorkey = image.get_at((0,0))
-            image.set_colorkey(colorkey, pygame.RLEACCEL)
-        return image
-    # Load a whole bunch of images and return them as a list
-    def images_at(self, rects, colorkey = None):
-        "Loads multiple images, supply a list of coordinates" 
-        return [self.image_at(rect, colorkey) for rect in rects]
-    # Load a whole strip of images
-    def load_strip(self, rect, image_count, colorkey = None):
-        "Loads a strip of images and returns them as a list"
-        tups = [(rect[0]+rect[2]*x, rect[1], rect[2], rect[3])
-                for x in range(image_count)]
-        return self.images_at(tups, colorkey)
-
-    def load_sheet(self,width,height,rows,image_count, colorkey = None):
-        '''Loads an entire sprite sheet, assumes sprites are equally spaced, returns them as list of lists '''
-        sprite_sheet = []
-        for i in range(rows):
-            sprite_sheet.append(self.load_strip((0, 0+i*height, width, height),image_count,colorkey))
-
-        print('len(sprite_sheet)',len(sprite_sheet))
-        return sprite_sheet
-
-
-
 class FrameRate():
     def __init__(self,dT):
         self.previousTime = 0
@@ -107,9 +68,7 @@ class FrameRate():
         '''
         self.callback = callback
         self.currentTime = int(time()*1000)
-
         self.elapsed_time += (self.currentTime - self.previousTime)
-
         print('self.elapsed_time:',self.elapsed_time)
         self.previousTime = self.currentTime
         if (self.elapsed_time >= (1 / int(self.dT)*1000)): 
@@ -200,7 +159,7 @@ class Player(Camera):
         super(Player,self).__init__()
         self.orientation = 'Right'
         #ss = spritesheet(get_file_path('/Assets/Sprites/Walk_sprite_sheet.png'))
-        ss = spritesheet(get_file_path('/Assets/Sprites/main_character.png'))
+        ss = spriteManager.spritesheet(get_file_path('/Assets/Sprites/main_character.png'))
         # Sprite is 16x16 pixels at location 0,0 in the file...
         #load_sheet(self,width,height,rows,image_count, colorkey = None)
         self.sheet = ss.load_sheet(96,144,4,3,(0,0,0))
@@ -211,8 +170,12 @@ class Player(Camera):
         self.position = struct(x=150,y=150)
         self.history = struct(x=0,y=0)
         self.iso_position = struct(x=0,y=0)
-        self.my_rect = pygame.Rect(self.iso_position.x,self.iso_position.y, 96, 144)
-        self.collisionSurf = pygame.Surface((64, 64), pygame.SRCALPHA)
+        self.offset = struct(x=10,y=10)
+        self.size_offset = struct(x=5,y=5)
+        self.my_rect = pygame.Rect(self.iso_position.x+self.offset.x,  \
+                                  self.iso_position.y+self.offset.y,   \
+                                   96-self.size_offset.x, 144-self.size_offset.y)
+        self.collisionSurf = pygame.Surface((96-self.size_offset.x, 144-self.size_offset.y), pygame.SRCALPHA)
         self.speed = 200
         #print('self.rect:',self.rect)
     def update(self, pressed_keys,deltaT,sprite):#,self.is_collision,sprite):
@@ -221,8 +184,8 @@ class Player(Camera):
         self.position.x, self.position.y = self.move(pressed_keys,deltaT,sprite)
         self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
         
-        pygame.draw.rect(self.collisionSurf, (0, 0, 150), (0,0, 96, 144), 1)
-        screen.blit(self.collisionSurf, (self.iso_position.x, self.iso_position.y))
+
+
 
 
     def move(self,pressed_keys,deltaT,sprite):
@@ -252,7 +215,7 @@ class Player(Camera):
             print('self.position.x: ',self.iso_position.x)
             print('self.position.y: ',self.iso_position.y)
             if(self.is_collision(sprite)):
-               self.position.x += self.speed * deltaT
+               self.position.x = self.history.x
             self.orientation = 'Left'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -269,7 +232,7 @@ class Player(Camera):
             self.my_rect.x = self.iso_position.x
             self.my_rect.y = self.iso_position.y
             if(self.is_collision(sprite)):
-               self.position.x -= self.speed * deltaT
+               self.position.x = self.history.x
             self.orientation = 'Right'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -288,7 +251,7 @@ class Player(Camera):
             self.my_rect.x = self.iso_position.x
             self.my_rect.y = self.iso_position.y
             if(self.is_collision(sprite)):
-               self.position.y -= self.speed * deltaT
+               self.position.y = self.history.y
             self.orientation = 'Left'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -307,7 +270,7 @@ class Player(Camera):
             self.my_rect.x = self.iso_position.x
             self.my_rect.y = self.iso_position.y
             if(self.is_collision(sprite)):
-               self.position.y += self.speed * deltaT
+               self.position.y = self.history.y
             self.orientation = 'Right'
             self.image = self.sheet[1][self.index]
             self.index += 1
@@ -318,6 +281,7 @@ class Player(Camera):
              and (not pressed_keys[K_w]) and (not pressed_keys[K_d])):
             self.image = self.sheet[0][1]
 
+        #Save position history for collisions
         self.history.x = self.position.x
         self.history.y = self.position.y
 
@@ -337,19 +301,11 @@ class Player(Camera):
         collision = False
         print('object_rect.rect: ',object_rect.rect)
         for r in object_rect.rect:
-            print('r: ',r, flush=True)
             if (r.colliderect(self.my_rect)):
                 collision = True
             print('collision:',collision,flush=True)
         return collision
     
-    # def is_collision(self,object_rect):
-    #     #https://gamedev.stackexchange.com/questions/136195/pygame-collide-rect
-    #     for rect in object_rect.rect:
-    #         if (self.get_rect().colliderect(rect)):
-    #             print('He\'s colliding',flush =True)
-    #             return True #self.get_rect().colliderect(object_rect.rect)
-    #     return False
 # Initialize pygame
 pygame.init()
 
@@ -362,7 +318,7 @@ frameRate = 6
 # Instantiate player. Right now, this is just a rectangle.
 player = Player()
 #Instantiate map, takes list of lists map to be rendered
-world = worldBuilder.Map(worldBuilder.map_data,MAP)
+world = worldBuilder.Map(worldBuilder.map)
 
 # Variable to keep the main loop running
 running = True
@@ -406,13 +362,17 @@ while running:
 
     screen.fill((0,0,0))
     deltaT = frame.integrate_state(player.update,pressed_keys,deltaT/1000,world)#,world.is_collided_with,player)
+    pygame.draw.rect(player.collisionSurf, (0, 0, 150), (0,0, 96-player.size_offset.x, 144-player.size_offset.y), 1)
+    screen.blit(player.collisionSurf, (player.iso_position.x+player.offset.x, player.iso_position.y+player.offset.y))
     #Returns worldScreen coordinates, whether the map should be updated
     #world.is_collided_with(player.rect)
 
+    
     #worldScreen,updateMap = player.updateCamera(player.iso_position)
-    player.render(player.image)
-    world.update((0,0))
+
+    #world.update((0,0))
     world.render(screen,False)
+    player.render(player.image)
     #frame.integrate_state(main)
 
     
