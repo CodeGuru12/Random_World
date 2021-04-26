@@ -43,7 +43,7 @@ class Map():
         self.stylizedTree = pygame.image.load(get_file_path('/Assets/Textures/stylized_tree_smaller.png') ).convert_alpha()  #load images
         #load_sheet(self,width,height,rows,image_count, colorkey = None)
         ss = spriteManager.spritesheet(get_file_path('/Assets/Textures/Grass-Spritesheet_Blocks.png'))
-        tree_sheet = spriteManager.spritesheet(get_file_path('/Assets/Textures/trees_twinkle.png'),options.CONVERTALPHA)#,options.TRANSPARENTCOLORKEY)
+        tree_sheet = spriteManager.spritesheet(get_file_path('/Assets/Textures/tree_spritesheet_sparkle2.png'),options.CONVERTALPHA)#,options.TRANSPARENTCOLORKEY)
         self.grass = ss.load_sheet(192,192,5,6,(0,0,0))
         self.trees = tree_sheet.load_sheet(192,192,1,4)
         #self.tree = pygame.image.load(get_file_path('/Assets/Textures/stylized_tree_smaller.png') ).convert_alpha()
@@ -92,7 +92,7 @@ class Map():
                     iso_y = (cart_x + cart_y)/2
                     centered_x = screen.get_rect().centerx + iso_x
                     centered_y = screen.get_rect().centery/2 + iso_y
-                    self.timingIndex(4,4)
+                    #self.timingIndex(4,4)
                     if (self.map[row][col] < 30):
                         tileImage = self.grass[grass[self.map[row][col]][0]][grass[self.map[row][col]][1]]
                     else:
