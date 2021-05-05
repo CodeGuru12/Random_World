@@ -1,11 +1,37 @@
 import os
 import errno
 from pathlib import Path
-from enum import Enum
+import platform
+import tkinter
 
-class Options(Enum):
-    CONVERTALPHA = 0
-    CONVERT      = 1
+def getOS():
+    ''' Return operating system, windows, linux, darwin '''
+    return platform.system().lower()
+
+def convert_to_iso(cart_x,cart_y):
+    '''
+    Returns isometric coordinates from cartesian coordinates
+    '''
+    return (cart_x - cart_y), (cart_x + cart_y)/2
+
+
+def getScreenResolution():
+    """
+    Workaround to get the size of the current screen in a multi-screen setup.
+
+    Returns:
+        geometry (str): The standard tkinter geometry string.
+            [width]x[height]+[left]+[top]
+    """
+    root = tkinter.Tk()
+    root.update_idletasks()
+    root.attributes('-fullscreen', True)
+    root.state('iconic')
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    root.destroy()
+
+    return (screen_width,screen_height)
 
 class Enum(tuple): 
     '''Allows enumerations to be defined as 
@@ -51,12 +77,14 @@ def get_file_path(file_directory):
     below the current root directory.
     '''
     run_directory = os.path.dirname(__file__)
-    file_path = Path(run_directory + file_directory)
-
+    file_path = Path(run_directory + '/' + file_directory)
     if (not os.path.isfile(file_path) ):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT),file_path)
 
     return str(file_path)
+
+def cartesian2iso(x,y):
+    return (x - y), (x + y)/2
 
 
 

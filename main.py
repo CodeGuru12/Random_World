@@ -5,6 +5,7 @@ from common_utilities import *
 from time import time
 import worldBuilder
 import spriteManager
+from spriteManager import options
 # Import pygame.locals for easier access to key coordinates
 
 # Updated to conform to flake8 and black standards
@@ -69,11 +70,11 @@ class FrameRate():
         self.callback = callback
         self.currentTime = int(time()*1000)
         self.elapsed_time += (self.currentTime - self.previousTime)
-        print('self.elapsed_time:',self.elapsed_time)
+        #print('self.elapsed_time:',self.elapsed_time)
         self.previousTime = self.currentTime
         if (self.elapsed_time >= (1 / int(self.dT)*1000)): 
-            if (DEBUG):
-                print('self.elapsed_time:',self.elapsed_time)
+            #if (DEBUG):
+                #print('self.elapsed_time:',self.elapsed_time)
             #Call function after elapsed time    
             self.callback(*args)
             #Reset elapsed time
@@ -136,33 +137,27 @@ class Camera():
         if (position.y > SCREEN_SIZE[1]-SPRITE_SIZE[1] and self.screen[1] == 2):
             position.y = SCREEN_SIZE[1]-SPRITE_SIZE[1]
 
-        if (False):
-            print('self.screen:',self.screen)
-            print('self.worldX:',self.worldX)
-            print('self.worldY:',self.worldY)
+        #if (False):
+            #print('self.screen:',self.screen)
+            #print('self.worldX:',self.worldX)
+            #print('self.worldY:',self.worldY)
 
-            print('self.rect.x:',position.x)
-            print('self.rect.y:',position.y)
+            #print('self.rect.x:',position.x)
+            #print('self.rect.y:',position.y)
 
         return (self.screen,self.updateScreen)
 
-def convert_to_iso(cart_x,cart_y):
-    '''
-    Returns isometric coordinates from cartesian coordinates
-    '''
-    iso_x = (cart_x - cart_y)
-    iso_y = (cart_x + cart_y)/2
-    return iso_x, iso_y
+
 
 class Player(Camera):
     def __init__(self):
         super(Player,self).__init__()
         self.orientation = 'Right'
         #ss = spritesheet(get_file_path('/Assets/Sprites/Walk_sprite_sheet.png'))
-        ss = spriteManager.spritesheet(get_file_path('/Assets/Sprites/main_character.png'))
+        ss = spriteManager.spritesheet(get_file_path('/Assets/Sprites/main_character.png'),options.CONVERTALPHA)
         # Sprite is 16x16 pixels at location 0,0 in the file...
         #load_sheet(self,width,height,rows,image_count, colorkey = None)
-        self.sheet = ss.load_sheet(96,144,4,3,(0,0,0))
+        self.sheet = ss.load_sheet(96,144,4,3)
         #self.images = ss.load_strip((0, 0, 64, 64),9,(255,255,255))
         self.index = 1
         #self.image = self.images[self.index]
@@ -176,8 +171,8 @@ class Player(Camera):
                                   self.iso_position.y+self.offset.y,   \
                                    96-self.size_offset.x, 144-self.size_offset.y)
         self.collisionSurf = pygame.Surface((96-self.size_offset.x, 144-self.size_offset.y), pygame.SRCALPHA)
-        self.speed = 200
-        #print('self.rect:',self.rect)
+        self.speed = 400
+        ##print('self.rect:',self.rect)
     def update(self, pressed_keys,deltaT,sprite):#,self.is_collision,sprite):
 
 
@@ -191,13 +186,13 @@ class Player(Camera):
     def move(self,pressed_keys,deltaT,sprite):
         global SIZE
         self.my_rect = pygame.Rect(self.position.x,self.position.y, 70, 131)
-        print(deltaT,flush=True)
+        #print(deltaT,flush=True)
         if (pressed_keys[K_UP]):
             SIZE += 1
-            print('SIZE:',SIZE,flush=True)
+            #print('SIZE:',SIZE,flush=True)
         elif (pressed_keys[K_DOWN]):
             SIZE -= 1
-            print('SIZE:',SIZE,flush=True)
+            #print('SIZE:',SIZE,flush=True)
 
         if self.index > len(self.sheet[0])-1:
             self.index = 0
@@ -205,15 +200,15 @@ class Player(Camera):
         if pressed_keys[K_w]: #up to left
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
             #Allow movement only if collision not detected
-                #print('self.is_collision(sprite):',self.is_collision(sprite))
+                ##print('self.is_collision(sprite):',self.is_collision(sprite))
             self.position.x -= self.speed * deltaT
             self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
             self.my_rect.x = self.iso_position.x
             self.my_rect.y = self.iso_position.y
-            print('self.my_rect.x: ',self.my_rect.x)
-            print('self.my_rect.y: ',self.my_rect.y)
-            print('self.position.x: ',self.iso_position.x)
-            print('self.position.y: ',self.iso_position.y)
+            #print('self.my_rect.x: ',self.my_rect.x)
+            #print('self.my_rect.y: ',self.my_rect.y)
+            #print('self.position.x: ',self.iso_position.x)
+            #print('self.position.y: ',self.iso_position.y)
             if(self.is_collision(sprite)):
                self.position.x = self.history.x
             self.orientation = 'Left'
@@ -225,7 +220,7 @@ class Player(Camera):
 
         if pressed_keys[K_s]: #down to right
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
-                #print('self.is_collision(sprite):',self.is_collision(sprite))
+                ##print('self.is_collision(sprite):',self.is_collision(sprite))
             self.position.x += self.speed * deltaT
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
@@ -244,7 +239,7 @@ class Player(Camera):
         if pressed_keys[K_a]:
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
 
-                #print('self.is_collision(sprite):',self.is_collision(sprite))
+                ##print('self.is_collision(sprite):',self.is_collision(sprite))
             self.position.y += self.speed * deltaT
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
@@ -263,7 +258,7 @@ class Player(Camera):
         if pressed_keys[K_d]:
             #self.worldX,self.worldY = self.worldCoordinates(self.position.x,self.position.y)
 
-            #print('self.is_collision(sprite):',self.is_collision(sprite))
+            ##print('self.is_collision(sprite):',self.is_collision(sprite))
             self.position.y -= self.speed * deltaT
             #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
             self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
@@ -299,11 +294,11 @@ class Player(Camera):
     def is_collision(self,object_rect):
         #https://gamedev.stackexchange.com/questions/116195/pygame-collide-rect
         collision = False
-        print('object_rect.rect: ',object_rect.rect)
+        #print('object_rect.rect: ',object_rect.rect)
         for r in object_rect.rect:
             if (r.colliderect(self.my_rect)):
                 collision = True
-            print('collision:',collision,flush=True)
+            #print('collision:',collision,flush=True)
         return collision
     
 # Initialize pygame
