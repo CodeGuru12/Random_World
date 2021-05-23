@@ -172,8 +172,8 @@ class Map():
                     #self.rect[index].y = self.rect[index].y+iso_camera.y
                 pygame.draw.rect(self.objects[1]['dispCollideBox'][index],(0, 100, 255),(0,0,self.treeSize.w,self.treeSize.h),2)
                 blitRect = screen.blit(self.objects[1]['dispCollideBox'][index],
-                                       (self.rect[index].x+iso_camera.x,
-                                        self.rect[index].y+iso_camera.y)
+                                       (self.rect[index].x-iso_camera.x,
+                                        self.rect[index].y-iso_camera.y)
                                        )#(self.objects[layer]['coordinates'][index].x, self.objects[layer]['coordinates'][index].y))
                 #print('blitRect: ',blitRect,flush=True)
                 #self.rect[index] = blitRect
