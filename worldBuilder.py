@@ -1,10 +1,12 @@
 import pygame
 from common_utilities import *
+#import common_utilities 
 import spriteManager
 from spriteManager import options
 from time import time
 import time
 import sys
+
 
 class MapBuilder():
     """ToDo MapBuilder intended to construct and return designed map"""
@@ -13,8 +15,8 @@ class MapBuilder():
         self.map = []
 
 
-TILEWIDTH = 184  #holds the tile width and height
-TILEHEIGHT = 92
+TILEWIDTH = 143  #holds the tile width and height
+TILEHEIGHT = 137
 TILEHEIGHT_HALF = TILEHEIGHT /2
 TILEWIDTH_HALF = TILEWIDTH /2
 DEBUG = False
@@ -28,47 +30,14 @@ grass = [(0,0), (0,1), (0,2),(0,3),(0,4), (0,5),
 
 #100 or greater is plants
 
-map = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 2,3],
-    [0,0,0,0,0,0,0, 1, 0, 3, 2, 2, 13, 14],
-    [0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 30, 2],
-    [0,0,0,0,0,0,0,0, 1, 0, 3, 2, 2, 13, 14],
-       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 3, 2, 3, 31, 0],
-       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 3, 30, 3, 5, 100, 12, 13],
-       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 1, 0,  2, 2, 13, 14],
-       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 1, 0,  2, 2, 13, 14],
-       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 1, 0,  2, 2, 13, 14],
-       [0,0,0,0,0,0,0,0, 1, 0,  2, 2, 13, 14]]
+map = [[0, 0, 0, 0, 2,3],
+    [0, 1, 0, 3, 2, 2, 11, 14],
+    [0, 0, 0, 2, 2],
+    [0, 1, 0, 30, 2, 2, 13, 14],
+       [0, 0, 0, 3, 2, 3, 0, 0],
+       [0, 30, 0, 3, 5, 1, 12, 13],
+       [0, 1, 0,  2, 2, 13, 14]
+       ]
 # map = [[0,1],
 #         [2,30]]
 
@@ -76,15 +45,13 @@ class Map():
     def __init__(self,world):
         self.map = world
         self.map_view = 5
-        #self.wall = pygame.image.load(get_file_path('/Assets/Textures/wall.png') ).convert_alpha()  #load images
-        self.stylizedTree = pygame.image.load(get_file_path('/Assets/Textures/tree.png') ).convert_alpha()  #load images
-        self.house = pygame.image.load(get_file_path('/Assets/Textures/Houses/cottage.png') ).convert_alpha()  #load images
-        self.stylizedTree.set_colorkey((255,255,255), pygame.RLEACCEL)
+        self.wall = pygame.image.load(get_file_path('/Assets/Textures/wall.png') ).convert_alpha()  #load images
+        self.tree = pygame.image.load(get_file_path('/Assets/Textures/_tree_01_192x220.png') ).convert_alpha() 
+        #self.stylizedTree = pygame.image.load(get_file_path('/Assets/Textures/willowtree.png') ).convert_alpha()  #load images
+        #self.stylizedTree.set_colorkey((255,255,255), pygame.RLEACCEL)
         #load_sheet(self,width,height,rows,image_count, colorkey = None)
-        ss = spriteManager.spritesheet(get_file_path('/Assets/Textures/grass184x92.png'),options.CONVERTALPHA)
-        ss2 = spriteManager.spritesheet(get_file_path('/Assets/Textures/grass192x96.png'),options.CONVERTALPHA)
+        ss = spriteManager.spritesheet(get_file_path('/Assets/Textures/Grass-Spritesheet_Blocks.png'))
         tree_sheet = spriteManager.spritesheet(get_file_path('/Assets/Textures/tree_spritesheet_sparkle.png'),options.CONVERTALPHA)
-        
         #plant_sheet = spriteManager.spritesheet(get_file_path('/Assets/Textures/plant_transparent.png'),options.CONVERTALPHA)
         self.enableCollideBoxes = True
         self.entityInfo = {'coordinates': [],'image': [],'subimage': [],'walkable': [], 'collisionCoord': [],'dispCollideBox': [],'hit': [],'shaded': [], 'sparkle': []}
@@ -93,11 +60,10 @@ class Map():
         self.objects = []
         for num in range(0,self.layers):
             self.objects.append({'coordinates': [],'image': [],'subimage': [],'walkable': [], 'collisionCoord': [],'dispCollideBox': [],'hit': [],'shaded': [], 'sparkle': []})
-        print('self.objects: ',self.objects)
+        #print('self.objects: ',self.objects)
         
-        self.grass = ss.load_sheet(184,92,1,1)
-        self.grass2 = ss2.load_sheet(184,92,1,1)
-        self.trees = tree_sheet.load_sheet(192,192,1,4)
+        self.grass = ss.load_sheet(192,192,5,6,(0,0,0))
+        self.trees = tree_sheet.load_sheet(192,194,1,4)
         #self.plants = plant_sheet.load_sheet(192,192,1,1)
         self.shadeSurface = pygame.Surface((100,121))
         self.shadeSurface.set_alpha(128)
@@ -105,6 +71,7 @@ class Map():
         #self.tree = pygame.image.load(get_file_path('/Assets/Textures/stylized_tree_smaller.png') ).convert_alpha()
         self.init = True
         #self.mapping = mapping
+        self.blitRect = [] #Rect surfaces to update on screen (returned by blit function)
         self.rect = []
         self.previous_update = False
         self.index = 0
@@ -113,6 +80,8 @@ class Map():
         self.previousTime = 0
         self.w = 0
         self.h = 0
+        self.treeOffset = struct(w=59,h=121)
+        self.treeSize = struct(w=26,h=31)
         #print('tree.rect:',self.rect)
     # def update(self,coddordinates):
     #     self.map_view = self.mapping[coordinates[0]][coordinates[1]]
@@ -151,30 +120,21 @@ class Map():
             actual_tree_height = 182
             if (self.init == True):
                 for row in range(0,len(self.map)):
-                    #print('row:',row)
                     for col in range(0,len(self.map[row])):
-                        #        self.entityInfo = {'coordinates': [],'image': [],'subimage': [],
-                        #       'walkable': [], 'collisionCoord': [],'collideBox': [],
-                        #       'displayCollideBox': [],'hit': [],'shaded': [], 'sparkle': []
-                        #                            }
                         cart_x = col * TILEWIDTH_HALF
                         cart_y = row * TILEHEIGHT_HALF
                         cart_x_hit = col * TILEWIDTH_HALF
                         cart_y_hit = row * TILEHEIGHT_HALF
 
+
                         iso_x, iso_y = cartesian2iso(cart_x,cart_y)
                         iso_x_hit, iso_y_hit = cartesian2iso(cart_x_hit,cart_y_hit)
-                        self.centeredCoordinates.x = screen.get_rect().centerx + iso_x-100
-                        self.centeredCoordinates.y = screen.get_rect().centery/2 + iso_y-100
+                        self.centeredCoordinates.x = screen.get_rect().centerx + iso_x
+                        self.centeredCoordinates.y = screen.get_rect().centery/2 + iso_y
                         
-                        #Collect object coordinates and action info
-                        print('self.map[row][col]: ',self.map[row][col])
                         if (self.map[row][col] < 30):
                             self.objects[0]['coordinates'].append(struct(x=self.centeredCoordinates.x,y=self.centeredCoordinates.y))
-                            if (self.map[row][col] == 0):
-                                self.objects[0]['image'].append(self.grass[0][0])#self.grass[ grass[self.map[row][col]][0] ][grass[self.map[row][col]][1]])
-                            else:
-                                self.objects[0]['image'].append(self.grass2[0][0])
+                            self.objects[0]['image'].append(self.grass[ grass[self.map[row][col]][0] ][grass[self.map[row][col]][1]])
                             self.objects[0]['walkable'].append(True)
                             self.objects[0]['collisionCoord'].append(None)
                             self.objects[0]['hit'].append(False)
@@ -184,46 +144,53 @@ class Map():
                             if (self.count == 0):
                                 self.count += 1
                             self.objects[1]['coordinates'].append(struct(x=self.centeredCoordinates.x,y=self.centeredCoordinates.y) )
+                            self.rect.append(pygame.Rect(self.centeredCoordinates.x+self.treeOffset.w, self.centeredCoordinates.y+self.treeOffset.h, self.treeSize.w,self.treeSize.h))
                             if (self.map[row][col] == 100):
                                 pass
                                 #self.objects[1]['image'].append(self.plants[0][0])
                             else:
-                                self.objects[1]['image'].append(self.trees[0][0])
+                                self.objects[1]['image'].append(self.trees[0][0])#self.tree)
                             if (self.enableCollideBoxes == True):
-                                self.objects[1]['dispCollideBox'].append(pygame.Surface((self.objects[1]['image'][-1].get_size()), pygame.SRCALPHA))
+                                self.objects[1]['dispCollideBox'].append(pygame.Surface((self.treeSize.w,self.treeSize.h),pygame.SRCALPHA))#(self.objects[1]['image'][-1].get_size()), pygame.SRCALPHA))
+
+                                    
                         elif (self.map[row][col] == 31):
-                            self.objects[1]['coordinates'].append(struct(x=self.centeredCoordinates.x,y=self.centeredCoordinates.y) )
-                            self.objects[1]['image'].append(self.stylizedTree)
-                        if (self.init == True):
-                            if (self.map[row][col] > 29):
-
-                                self.rect.append(pygame.Rect(self.centeredCoordinates.x, self.centeredCoordinates.y, tree_width, tree_height))
-
+                            pass
+                            #self.objects[1]['coordinates'].append(struct(x=self.centeredCoordinates.x,y=self.centeredCoordinates.y) )
+                            #self.objects[1]['image'].append(self.stylizedTree)
+                        
+                            if (self.map[row][col] == 30 or self.map[row][col] == 100):
+                                pass
+                                #self.rect.append(pygame.Rect(self.centeredCoordinates.x+self.treeOffset.w, self.centeredCoordinates.y+self.treeOffset.h, tree_width, tree_height))
+                                #tree_width, tree_height))
+                                
             #sys.exit()
             self.init = False
                 #sys.exit()
             #time.sleep(5)
-            for layer in range(0,self.layers):
-                for index, img in enumerate(self.objects[layer]['image']):
-                    print('index: ',index)
-                    print('layer: ',layer)
-                    print('number of objects: ',len(self.objects[1]['image']))
-                    #Blit subimage before blitting layer 2 stuff (trees right now)
-                    #print('object 0: ',self.objects[0])
-                    #print('object 1: ',self.objects[1])
-                    if (layer == 1):
-                        screen.blit(img, (self.objects[layer]['coordinates'][index].x, self.objects[layer]['coordinates'][index].y))
-                    else:
-                        screen.blit(img,(self.objects[layer]['coordinates'][index].x, self.objects[layer]['coordinates'][index].y))
-
-                        
-                if (False):#self.enableCollideBoxes == True and layer == 1):
-                    pygame.draw.rect(self.objects[layer]['dispCollideBox'][index],(0, 100, 255),(0,0,tree_width,tree_height),2)
-                    screen.blit(self.objects[layer]['dispCollideBox'][index],(self.objects[layer]['coordinates'][index].x, self.objects[layer]['coordinates'][index].y))
-
-            screen.blit(self.house,(500, 100))
+            #for layer in range(0,self.layers):
+            for index, img in enumerate(self.objects[0]['image']):
+                screen.blit(img,(self.objects[0]['coordinates'][index].x, self.objects[0]['coordinates'][index].y))
+            
+  
+        return self.objects
+        #print('self.rect: ', len(self.rect),flush=True)
 
 
+    def renderOver(self,screen):
+        
+        for index, img in enumerate(self.objects[1]['image']):
+
+            surfToBlit = screen.blit(img,(self.objects[1]['coordinates'][index].x, self.objects[1]['coordinates'][index].y))
+            #pygame.display.update(surfToBlit)  
+            if (self.enableCollideBoxes == True):
+                pygame.draw.rect(self.objects[1]['dispCollideBox'][index],(0, 100, 255),(0,0,self.treeSize.w,self.treeSize.h),2)
+                blitRect = screen.blit(self.objects[1]['dispCollideBox'][index],self.rect[index])#(self.objects[layer]['coordinates'][index].x, self.objects[layer]['coordinates'][index].y))
+                self.blitRect.append(blitRect)
+            
+                #pygame.display.update(blitRect)  
+                #print('self.rect[index]: ',self.rect[index])
+        return self.blitRect 
     def timingIndex(self,freq,numImgs):
         self.currentTime = int(time()*1000)
         self.elapsed_time += (self.currentTime - self.previousTime)

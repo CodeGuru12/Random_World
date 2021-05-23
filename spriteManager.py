@@ -48,5 +48,5 @@ class spritesheet(object):
         for i in range(rows):
             sprite_sheet.append(self.load_strip((0, 0+i*height, width, height),image_count,colorkey))
 
-        print('len(sprite_sheet)',len(sprite_sheet))
+        #print('len(sprite_sheet)',len(sprite_sheet))
         return sprite_sheet
