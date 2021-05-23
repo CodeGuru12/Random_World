@@ -7,6 +7,7 @@ import worldBuilder
 import spriteManager
 from spriteManager import options
 import Items
+from pygame.math import Vector2
 # Import pygame.locals for easier access to key coordinates
 
 # Updated to conform to flake8 and black standards
@@ -79,7 +80,6 @@ class FrameRate():
             callback(*args)
             #Reset elapsed time
             self.elapsed_time = 0
-        print('elapsed_time: ',self.elapsed_time)
         return self.elapsed_time
 
 class Camera():
@@ -125,7 +125,7 @@ class Camera():
             if (self.screen[1] < SCREENS-1):
                 self.screen[1] += 1
                 self.updateScreen = True
-        #Prevent player from leaving edge of map
+        #Prevent player frm leaving edge of map
         if (position.x < 0 and self.screen[0] == 0):
             position.x = 0
         elif (position.x > SCREEN_SIZE[0]-SPRITE_SIZE[0] and self.screen[0] == 2):
@@ -146,6 +146,9 @@ class Player(Camera):
     def __init__(self):
         super(Player,self).__init__()
         self.orientation = 'Right'
+        self.movementDetected = False
+        self.camera = struct(x=0,y=0)
+        self.iso_camera = struct(x=0,y=0)
         #ss = spritesheet(get_file_path('/Assets/Sprites/Walk_sprite_sheet.png'))
         ss = spriteManager.spritesheet(get_file_path('/Assets/Sprites/Running_character250x250.png'),options.CONVERTALPHA)
         idle = spriteManager.spritesheet(get_file_path('/Assets/Sprites/Idle_character250x250.png'),options.CONVERTALPHA)
@@ -162,16 +165,19 @@ class Player(Camera):
         self.history = struct(x=0,y=0)
         self.iso_position = struct(x=0,y=0) #isometric player position
         self.offset = struct(x=103,y=95)
-        self.my_rect = pygame.Rect(self.iso_position.x+self.offset.x,  \
-                                  self.iso_position.y+self.offset.y,   \
+        self.my_rect = pygame.Rect(SCREEN_WIDTH/2-125+self.offset.x,  \
+                                  SCREEN_HEIGHT/2-125+self.offset.y,   \
                                    self.dimensions.w, self.dimensions.h)
+    
+        self.collisionRect = None
         self.collisionSurf = pygame.Surface((self.dimensions.w, self.dimensions.h), pygame.SRCALPHA)
-        self.speed = 200
+        self.speed = 150
+
     def update(self, pressed_keys,deltaT,sprite):
 
         self.position.x, self.position.y = self.move(pressed_keys,deltaT,sprite)
         self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-
+        self.iso_camera.x, self.iso_camera.y = convert_to_iso(self.camera.x,self.camera.y)
 
     def move(self,pressed_keys,deltaT,sprite):
         global SIZE
@@ -184,23 +190,22 @@ class Player(Camera):
             self.index = 0
             
         self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-        self.my_rect.x = self.iso_position.x+self.offset.x
-        self.my_rect.y = self.iso_position.y+self.offset.y
         
         # Move the SPRITE_SIZE based on user keypresses
         if pressed_keys[K_w]: #up to left
+            self.movementDetected = True
             self.position.x -= self.speed * deltaT
-            self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-            self.my_rect.x = self.iso_position.x+self.offset.x
-            self.my_rect.y = self.iso_position.y+self.offset.y
+            #self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+            #self.my_rect.x =SCREEN_WIDTH/2-125+self.offset.x,                
+            #self.my_rect.y = SCREEN_HEIGHT/2-125+self.offset.y
 
             #Collision detection
             if(self.is_collision(sprite)):
                 self.position.x = self.history.x
                 #self.position.y = self.history.y
-                self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-                self.my_rect.x = self.iso_position.x+self.offset.x
-                self.my_rect.y = self.iso_position.y+self.offset.y
+                #self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+                #self.my_rect.x = self.iso_position.x+self.offset.x
+                #self.my_rect.y = self.iso_position.y+self.offset.y
             self.orientation = 'Right'
             self.image = self.sheet[0][self.index]
             self.index += 1
@@ -209,18 +214,21 @@ class Player(Camera):
             self.index = 0
 
         if pressed_keys[K_s]: #down to right
+            self.movementDetected = True
             self.position.x += self.speed * deltaT
 
-            self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-            self.my_rect.x = self.iso_position.x+self.offset.x
-            self.my_rect.y = self.iso_position.y+self.offset.y
+            #self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+            #self.my_rect.x =SCREEN_WIDTH/2-125+self.offset.x,                
+            #self.my_rect.y = SCREEN_HEIGHT/2-125+self.offset.y
+            #self.my_rect.x = self.iso_position.x+self.offset.x
+            #self.my_rect.y = self.iso_position.y+self.offset.y
             #Collision detection
             if(self.is_collision(sprite)):
                 self.position.x = self.history.x
                 #self.position.y = self.history.y
-                self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-                self.my_rect.x = self.iso_position.x+self.offset.x
-                self.my_rect.y = self.iso_position.y+self.offset.y
+                #self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+                #self.my_rect.x = self.iso_position.x+self.offset.x
+                #self.my_rect.y = self.iso_position.y+self.offset.y
 
             self.orientation = 'Left'
             self.image = self.sheet[0][self.index]
@@ -231,18 +239,20 @@ class Player(Camera):
             self.index = 0
 
         if pressed_keys[K_a]:
+            self.movementDetected = True
             self.position.y += self.speed * deltaT
-            
-            self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-            self.my_rect.x = self.iso_position.x+self.offset.x
-            self.my_rect.y = self.iso_position.y+self.offset.y
+            #self.my_rect.x =SCREEN_WIDTH/2-125+self.offset.x,                
+            #self.my_rect.y = SCREEN_HEIGHT/2-125+self.offset.y
+            #self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+            #self.my_rect.x = self.iso_position.x+self.offset.x
+            #self.my_rect.y = self.iso_position.y+self.offset.y
             #Collision detection
             if(self.is_collision(sprite)):
                 self.position.y = self.history.y
                 #self.position.x = self.history.x
-                self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-                self.my_rect.x = self.iso_position.x+self.offset.x
-                self.my_rect.y = self.iso_position.y+self.offset.y
+                #self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+                #self.my_rect.x = self.iso_position.x+self.offset.x
+                #self.my_rect.y = self.iso_position.y+self.offset.y
 
             self.orientation = 'Right'
             self.image = self.sheet[0][self.index]
@@ -253,18 +263,21 @@ class Player(Camera):
             self.index = 0
 
         if pressed_keys[K_d]:
+            self.movementDetected = True
             self.position.y -= self.speed * deltaT
-            #self.position.x,self.position.y =  self.screenCoordinates(self.worldX,self.worldY)
-            self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-            self.my_rect.x = self.iso_position.x+self.offset.x
-            self.my_rect.y = self.iso_position.y+self.offset.y
+            #self.my_rect.x =SCREEN_WIDTH/2-125+self.offset.x,                
+            #self.my_rect.y = SCREEN_HEIGHT/2-125+self.offset.y
+            #self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+            #self.my_rect.x = self.iso_position.x+self.offset.x
+            #self.my_rect.y = self.iso_position.y+self.offset.y
             #Collision detection
             if(self.is_collision(sprite)):
+                print('Are we even going in here?',flush=True)
+                #self.position.y = self.history.y
                 self.position.y = self.history.y
-                #self.position.x = self.history.x
-                self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
-                self.my_rect.x = self.iso_position.x+self.offset.x
-                self.my_rect.y = self.iso_position.y+self.offset.y
+                #self.iso_position.x, self.iso_position.y = convert_to_iso(self.position.x,self.position.y)
+                #self.my_rect.x = self.iso_position.x+self.offset.x
+                #self.my_rect.y = self.iso_position.y+self.offset.y
 
             self.orientation = 'Left'
             self.image = self.sheet[0][self.index]
@@ -279,23 +292,30 @@ class Player(Camera):
             
 
         #Save position history for collisions
-        self.history.x = self.position.x
-        self.history.y = self.position.y
-        #print('self.my_rect.x: ',self.my_rect.x, 'self.my_rect.y: ',self.my_rect.y,flush = True)
+        self.history.x = SCREEN_WIDTH/2-125#self.position.x
+        self.history.y = SCREEN_HEIGHT/2-125#self.position.y
+
+        #Set camera position 
+        self.camera.x = self.position.x
+        self.camera.y = self.position.y
+
+
         return self.position.x,self.position.y
 
     def render(self,surface):
         if self.orientation == "Left":
             #blit returns a rect, use that to blit just where you are running
-            blitRect = screen.blit(surface, (self.iso_position.x,self.iso_position.y))
+            blitRect = screen.blit(surface, (SCREEN_WIDTH/2-125,SCREEN_HEIGHT/2-125))#(self.iso_position.x-self.iso_camera.x,self.iso_position.y-self.iso_camera.y))
             #pygame.display.update(blitRect)
         elif self.orientation == "Right":
-            blitRect = screen.blit(pygame.transform.flip(surface, True, False), (self.iso_position.x,self.iso_position.y))
+            blitRect = screen.blit(pygame.transform.flip(surface, True, False), (SCREEN_WIDTH/2-125,SCREEN_HEIGHT/2-125))
+                                   #(self.iso_position.x-self.iso_camera.x,
+                                   #self.iso_position.y-self.iso_camera.y))
             #pygame.display.update(blitRect)
 
         #Draw collision box
         pygame.draw.rect(player.collisionSurf, BLUE, (0,0, self.dimensions.w, self.dimensions.h), 1)
-        blitRectBox = screen.blit(player.collisionSurf, self.my_rect)#(player.iso_position.x+player.offset.x, player.iso_position.y+player.offset.y))
+        blitRectBox = screen.blit(player.collisionSurf, self.my_rect)#(SCREEN_WIDTH/2+self.offset.x-125,SCREEN_HEIGHT/2+self.offset.y-125))#(self.my_rect.x+self.iso_camera.x,self.my_rect.y+self.iso_camera.y))#(player.iso_position.x+player.offset.x, player.iso_position.y+player.offset.y))
         #pygame.display.update(self.blitRect)
         return [blitRect, blitRectBox]
 
@@ -309,6 +329,7 @@ class Player(Camera):
         for r in object_rect.rect:
             if (r.colliderect(self.my_rect)):
                 collision = True
+                self.collisionRect = r
             #print('collision:',collision,flush=True)
         return collision
     
@@ -318,7 +339,7 @@ pygame.init()
 
 # Create the screen object
 # The size is determined by the constant SCREEN_SIZE[0] and SCREEN_SIZE[1]
-screen = pygame.display.set_mode((SCREEN_SIZE[0], SCREEN_SIZE[1]))#,pygame.DOUBLEBUF)
+screen = pygame.display.set_mode((SCREEN_SIZE[0], SCREEN_SIZE[1]),pygame.DOUBLEBUF,pygame.HWACCEL)
 
 # Instantiate player. Right now, this is just a rectangle.
 player = Player()
@@ -340,7 +361,7 @@ def main():
     player.update(pressed_keys,world)
 
     #worldScreen,updateMap = player.updateCamera(player.iso_position)
-    world.update((0,0))
+    #world.update((0,0))
     world.render(screen,False)
     player.render(player.image)
     # Draw the player on the screen
@@ -349,7 +370,6 @@ def main():
 deltaT = 0
 
 initial_draw = True
-surfToUpdate = None
 dropApple = False
 renderApple = False
 
@@ -364,9 +384,12 @@ while running:
             if event.key == K_ESCAPE:
                 running = False
             distance = apple.rect_distance(player.my_rect, world.rect[0])
-            print('distance: ',distance)
+            print('distance: ',distance,flush=True)
+            #print('distance: ',distance)
             if (distance < 20):
                 dropApple = apple.drop(event)
+        elif (event.type == pygame.KEYUP):
+            player.movementDetected = False
         # Check for QUIT event. If QUIT, then set running to false.
         elif event.type == QUIT:
             running = False
@@ -382,13 +405,13 @@ while running:
     #worldScreen,updateMap = player.updateCamera(player.iso_position)
 
     #world.update((0,0))
-    world.render(screen,surfToUpdate)
+    world.render(screen,player.iso_camera)
     if (dropApple):
         renderApple = True
 
 
     playerRects = player.render(player.image)
-    blitRects = world.renderOver(screen)
+    blitRects = world.renderOver(screen,player.iso_camera,player.movementDetected)
     if (renderApple):
         #render(self,screen,position,row=1,column=1)
         #frame2.integrate_state(240,apple.render,screen,(world.objects[1]['coordinates'][0].x+world.treeOffset.w, world.objects[1]['coordinates'][0].y+world.treeOffset.h))
@@ -413,6 +436,8 @@ while running:
     pygame.display.update(totalRects)
     #clock.tick(120)
     # Update the display
-    if (initial_draw == True):
+    if (initial_draw == True or player.movementDetected):
         pygame.display.flip()
         initial_draw = False
+
+
