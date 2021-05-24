@@ -141,7 +141,8 @@ class Map():
                         if (self.count == 0):
                             self.count += 1
                         self.objects[1]['coordinates'].append(struct(x=self.centeredCoordinates.x,y=self.centeredCoordinates.y) )
-                        self.rect.append(pygame.Rect(self.centeredCoordinates.x+self.treeOffset.w, self.centeredCoordinates.y+self.treeOffset.h, self.treeSize.w,self.treeSize.h))
+                        self.rect.append(pygame.Rect(self.centeredCoordinates.x+self.treeOffset.w-iso_camera.x, self.centeredCoordinates.y+self.treeOffset.h-iso_camera.y, self.treeSize.w,self.treeSize.h))
+                        self.objects[1]['collisionCoord'].append(struct(x=self.centeredCoordinates.x+self.treeOffset.w,y=self.centeredCoordinates.y+self.treeOffset.h) )
                         if (self.map[row][col] == 100):
                             pass
                         else:
@@ -167,19 +168,17 @@ class Map():
                 #print('self.previous_iso_camera: ',self.previous_iso_camera)
                 #print('iso_camera: ',iso_camera)
                 if (movementDetected and self.previous_iso_camera != iso_camera):
-                    print('Are we going here?',flush=True)
-                    #self.rect[index].x = self.rect[index].x+iso_camera.x
-                    #self.rect[index].y = self.rect[index].y+iso_camera.y
+                    self.rect[index].x = self.objects[1]['collisionCoord'][index].x - iso_camera.x
+                    self.rect[index].y = self.objects[1]['collisionCoord'][index].y - iso_camera.y
                 pygame.draw.rect(self.objects[1]['dispCollideBox'][index],(0, 100, 255),(0,0,self.treeSize.w,self.treeSize.h),2)
                 blitRect = screen.blit(self.objects[1]['dispCollideBox'][index],
-                                       (self.rect[index].x+iso_camera.x,
-                                        self.rect[index].y+iso_camera.y)
+                                       (self.rect[index].x,
+                                        self.rect[index].y)
                                        )#(self.objects[layer]['coordinates'][index].x, self.objects[layer]['coordinates'][index].y))
-                #print('blitRect: ',blitRect,flush=True)
-                #self.rect[index] = blitRect
+
                 self.blitRect.append(blitRect)
-                print('self.rect[index].x',self.rect[0].x,'self.rect[index].y',self.rect[0].y,flush=True)
-                print('x-dist: ',self.rect[0].x-iso_camera.x,'y-dist:',self.rect[0].y-iso_camera.y,flush=True)
+                #print('self.rect[index].x',self.rect[0].x,'self.rect[index].y',self.rect[0].y,flush=True)
+                #print('x-dist: ',iso_camera.x,'y-dist:',iso_camera.y,flush=True)
                 #pygame.display.update(blitRect)  
                 self.previous_iso_camera.x = iso_camera.x
                 self.previous_iso_camera.y = iso_camera.y
